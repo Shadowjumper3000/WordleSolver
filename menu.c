@@ -5,10 +5,12 @@
 #include "main.h"
 
 char libraryName[10];
+char libraryPath[20];
 
 char letters[MAX_WORD_LENGTH + 1];
 char positions[MAX_WORD_LENGTH + 1];
 char guess[MAX_WORD_LENGTH + 1] = INITIAL_WORD;
+int numGuesses = 0;
 char possibleWords[MAX_GUESSES][MAX_WORD_LENGTH + 1];
 
 int solved = 0;
@@ -23,6 +25,8 @@ int initialSetup() {
     
     if (DEBUG) printf("DEBUG: Setting up the library as %s\n", libraryName);
 
+    sprintf(libraryPath, "Libraries/%s", libraryName);
+
     return 0;
 }
 
@@ -31,7 +35,7 @@ int probability(char *word) {
     if (DEBUG) printf("DEBUG: probability()\n");
 
     int score = 0;
-    for (int i = 0; i < strlen(word); i++) {
+    for (size_t i = 0; i < strlen(word); i++) {
         if (word[i] == 'a' || word[i] == 'e' || word[i] == 'i' || word[i] == 'o' || word[i] == 'u') {
             score++;
         }
@@ -47,21 +51,23 @@ int getPossibleWords() {
     static int firstTime = 1;
 
     if (letters[0] == '\0') {
-        printf("We don't have any letters yet\n");
+        printf("Enter some letters to recieve possible words\n");
     }
     
     if (firstTime && letters[0] != '\0') {
 
-        FILE *library = fopen(libraryName, "r");
+        FILE *library = fopen(libraryPath, "r");
 
         char word[MAX_WORD_LENGTH + 1];
+
+        if (DEBUG) printf("DEBUG: Opening library file %s\n", libraryName);
 
         if (library == NULL) {
             printf("Error: Could not open library file\n");
             return -1;
         }
 
-        while (fscanf(library, "%s", word) != EOF) {
+        while (fscanf(library, " %s", word) != EOF) {
             if (DEBUG) printf("DEBUG: Word: %s\n", word);
 
             int letterFound[MAX_WORD_LENGTH] = {0};
@@ -151,8 +157,6 @@ int getPossibleWords() {
 int giveWord() {
 
     if (DEBUG) printf("DEBUG: giveWord()\n");
-
-
 
     printf("A likely word is: %s\t\n", guess);
 
